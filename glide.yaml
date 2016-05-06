@@ -1,0 +1,9 @@
+package: github.com/wearemolecule/kube-scheduler
+import:
+- package: gopkg.in/yaml.v2
+- package: github.com/robfig/cron
+- package: github.com/wearemolecule/kubeclient
+- package: golang.org/x/build
+  subpackages:
+  - kubernetes/api
+- package: github.com/joho/godotenv

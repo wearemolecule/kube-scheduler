@@ -1,0 +1,12 @@
+ice_scraper:
+  cron: "0 * * * * 1-5"
+  template: "ice_scraper.yaml"
+  args: []
+  description: "Scrape ICE pdf for market data"
+
+nymex_prelims:
+  cron: "0 */2 15-23 * * 1-5"
+  template: "nymex_prelims.json"
+  args: ["-file", "stlnymex"]
+  namespace: market-data-staging
+  description: "Scrape NYMEX prelims for market data"

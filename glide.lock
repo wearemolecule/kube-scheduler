@@ -1,0 +1,23 @@
+hash: 947c747e91aaf572149a52f09df808ad0b95809c18aeb999c8a23d6c12ac6e4a
+updated: 2016-05-04T14:43:35.969911663-05:00
+imports:
+- name: github.com/joho/godotenv
+  version: 4ed13390c0acd2ff4e371e64d8b97c8954138243
+- name: github.com/robfig/cron
+  version: 0f39cf7ebc65a602f45692f9894bd6a193faf8fa
+- name: github.com/wearemolecule/kubeclient
+  version: 1615f86447066b3d5659fe492e3f7f991c60e015
+- name: golang.org/x/build
+  version: b7333cfaa720d0d3838c5ff9103c2df22a5870bb
+  subpackages:
+  - kubernetes/api
+- name: golang.org/x/net
+  version: 35ec611a141ee705590b9eb64d673f9e6dfeb1ac
+  subpackages:
+  - context
+  - context/ctxhttp
+- name: gopkg.in/yaml.v2
+  version: a83829b6f1293c91addabc89d0571c246397bbf4
+- name: speter.net/go/exp/math/dec/inf
+  version: 42ca6cd68aa922bc3f32f1e056e61b65945d9ad7
+devImports: []

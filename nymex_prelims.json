@@ -1,0 +1,31 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "generateName": "nymex-prelims-",
+    "labels": {
+      "app": "nymex-prelim-scraper",
+      "role": "scraper"
+    }
+  },
+  "spec": {
+    "imagePullSecrets": [
+      {
+        "name": "docker-cfg"
+      }
+    ],
+    "restartPolicy": "Never",
+    "containers": [
+      {
+        "image": "quay.io/molecule/nymex-prelim-scraper:v1.0.2",
+        "name": "nymex-scraper",
+        "env": [
+          {
+            "name": "MAMMOTH_URL",
+            "value": "market-data-mammoth:8787"
+          }
+        ]
+      }
+    ]
+  }
+}
