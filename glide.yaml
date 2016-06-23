@@ -7,3 +7,4 @@ import:
   subpackages:
   - kubernetes/api
 - package: github.com/joho/godotenv
+- package: github.com/honeybadger-io/honeybadger-go
