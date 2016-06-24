@@ -9,9 +9,11 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron"
+	"github.com/smeriwether/honeybadger-go"
 	kube "github.com/wearemolecule/kubeclient"
 	"golang.org/x/build/kubernetes/api"
 	"golang.org/x/net/context"
@@ -27,6 +29,9 @@ func init() {
 }
 
 func main() {
+	configureHoneybadger()
+	defer honeybadger.Monitor()
+
 	jobLock = make(map[string]string)
 	flag.Parse()
 	err := godotenv.Load()
@@ -36,18 +41,24 @@ func main() {
 
 	kubeClient, err = kube.GetKubeClientFromEnv()
 	if err != nil {
-		panic(fmt.Errorf("Failed to connect to kubernetes. Error: %v", err))
+		nErr := fmt.Errorf("Failed to connect to kubernetes. Error: %v", err)
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		panic(nErr)
 	}
 
 	b, err := ioutil.ReadFile(filePath("schedule.yml"))
 	if err != nil {
-		log.Fatal(err)
+		nErr := fmt.Errorf("Unable to read schedule yaml, error: %v", err)
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		log.Fatal(nErr)
 	}
 
 	var config JobList
 	err = yaml.Unmarshal(b, &config)
 	if err != nil {
-		log.Fatal(err)
+		nErr := fmt.Errorf("Unable to unmarshal schedule yaml, error: %v", err)
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		log.Fatal(nErr)
 	}
 
 	log.Println(config)
@@ -77,17 +88,24 @@ type Job struct {
 
 func (j Job) Run() {
 	if _, ok := jobLock[j.Template]; ok {
-		log.Printf("%s is already running\n", j.Description)
+		nErr := fmt.Errorf("Unable to start new job (%s) because it is already running", j.Description)
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		log.Println(nErr)
 		return
 	}
 	log.Println("Running", j.Description)
+
 	//TODO not thread safe
 	jobLock[j.Template] = "started"
-	err := createTaskPod(j)
-	delete(jobLock, j.Template)
-	if err != nil {
-		log.Println("Failed", err)
+	defer delete(jobLock, j.Template)
+
+	if err := createTaskPod(j); err != nil {
+		nErr := fmt.Errorf("Failed to create task pod for job %s, error: %v", j.Description, err)
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		log.Println(nErr)
+		return
 	}
+
 	log.Println("Done", j.Description)
 }
 
@@ -129,15 +147,23 @@ func createTaskPod(j Job) error {
 			return errors.New(fmt.Sprintf("Task pod failed.\n%v", err))
 		}
 		if podStatus.Phase == "Succeeded" {
-			logs, err := kubeClient.PodLog(ctx, newPod.Namespace, newPod.Name)
-			if err != nil {
-				log.Println("Failed to get logs")
+			if logs, err := kubeClient.PodLog(ctx, newPod.Namespace, newPod.Name); err != nil {
+				log.Println("Failed to get logs for pod %s in namespace %s\n", newPod.Name, newPod.Namespace)
+			} else {
+				log.Println(logs)
 			}
-			log.Println(logs)
-			_ = kubeClient.DeletePod(ctx, newPod.Namespace, newPod.Name)
+			if err = kubeClient.DeletePod(ctx, newPod.Namespace, newPod.Name); err != nil {
+				nErr := fmt.Errorf("Failed to delete task pod for job %s, error: %v", j.Description, err)
+				honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+				log.Println(nErr)
+			}
 			break
 		}
 	}
 
 	return nil
+}
+
+func configureHoneybadger() {
+	honeybadger.Configure(honeybadger.Configuration{APIKey: os.Getenv("HONEYBADGER_API_KEY")})
 }
