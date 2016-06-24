@@ -42,14 +42,14 @@ func main() {
 	kubeClient, err = kube.GetKubeClientFromEnv()
 	if err != nil {
 		nErr := fmt.Errorf("Failed to connect to kubernetes. Error: %v", err)
-		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{fmt.Sprintf("%d", time.Now().Unix())})
 		panic(nErr)
 	}
 
 	b, err := ioutil.ReadFile(filePath("schedule.yml"))
 	if err != nil {
 		nErr := fmt.Errorf("Unable to read schedule yaml, error: %v", err)
-		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{fmt.Sprintf("%d", time.Now().Unix())})
 		log.Fatal(nErr)
 	}
 
@@ -57,7 +57,7 @@ func main() {
 	err = yaml.Unmarshal(b, &config)
 	if err != nil {
 		nErr := fmt.Errorf("Unable to unmarshal schedule yaml, error: %v", err)
-		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{fmt.Sprintf("%d", time.Now().Unix())})
 		log.Fatal(nErr)
 	}
 
@@ -89,7 +89,7 @@ type Job struct {
 func (j Job) Run() {
 	if _, ok := jobLock[j.Template]; ok {
 		nErr := fmt.Errorf("Unable to start new job (%s) because it is already running", j.Description)
-		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{fmt.Sprintf("%d", time.Now().Unix())})
 		log.Println(nErr)
 		return
 	}
@@ -101,7 +101,7 @@ func (j Job) Run() {
 
 	if err := createTaskPod(j); err != nil {
 		nErr := fmt.Errorf("Failed to create task pod for job %s, error: %v", j.Description, err)
-		honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+		honeybadger.Notify(nErr, honeybadger.Fingerprint{fmt.Sprintf("%d", time.Now().Unix())})
 		log.Println(nErr)
 		return
 	}
@@ -154,7 +154,7 @@ func createTaskPod(j Job) error {
 			}
 			if err = kubeClient.DeletePod(ctx, newPod.Namespace, newPod.Name); err != nil {
 				nErr := fmt.Errorf("Failed to delete task pod for job %s, error: %v", j.Description, err)
-				honeybadger.Notify(nErr, honeybadger.Fingerprint{time.Now().Unix()})
+				honeybadger.Notify(nErr, honeybadger.Fingerprint{fmt.Sprintf("%d", time.Now().Unix())})
 				log.Println(nErr)
 			}
 			break

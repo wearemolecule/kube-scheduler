@@ -2,27 +2,22 @@
   "apiVersion": "v1",
   "kind": "Pod",
   "metadata": {
-    "generateName": "nymex-prelims-",
+    "generateName": "sample-job-",
     "labels": {
-      "app": "nymex-prelim-scraper",
-      "role": "scraper"
+      "app": "smaple-job",
+      "role": "scheduled-job"
     }
   },
   "spec": {
-    "imagePullSecrets": [
-      {
-        "name": "docker-cfg"
-      }
-    ],
     "restartPolicy": "Never",
     "containers": [
       {
-        "image": "quay.io/molecule/nymex-prelim-scraper:v1.0.2",
-        "name": "nymex-scraper",
+        "image": "quay.io/molecule/sample-job:latest",
+        "name": "sample-job",
         "env": [
           {
-            "name": "MAMMOTH_URL",
-            "value": "market-data-mammoth:8787"
+            "name": "SAMPLE_ENV",
+            "value": "env-var"
           }
         ]
       }
