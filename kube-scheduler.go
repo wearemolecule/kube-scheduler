@@ -11,9 +11,9 @@ import (
 	"os/signal"
 	"time"
 
+	honeybadger "github.com/honeybadger-io/honeybadger-go"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron"
-	"github.com/smeriwether/honeybadger-go"
 	kube "github.com/wearemolecule/kubeclient"
 	"golang.org/x/build/kubernetes/api"
 	"golang.org/x/net/context"
@@ -144,7 +144,7 @@ func createTaskPod(j Job) error {
 		podStatus := status.Pod.Status
 		if podStatus.Phase == "Failed" {
 			_ = kubeClient.DeletePod(ctx, newPod.Namespace, newPod.Name)
-			return errors.New(fmt.Sprintf("Task pod failed.\n%v", err))
+			return errors.New(fmt.Sprintf("Task pod %s in namespace %s failed.", newPod.Name, newPod.Namespace))
 		}
 		if podStatus.Phase == "Succeeded" {
 			if logs, err := kubeClient.PodLog(ctx, newPod.Namespace, newPod.Name); err != nil {
