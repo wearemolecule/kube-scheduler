@@ -131,14 +131,13 @@ func (j Job) Equal(job Job) bool {
 	return j.Cron == job.Cron &&
 		j.Template == job.Template &&
 		j.Description == job.Description &&
-		j.Args == job.Args &&
 		j.Namespace == job.Namespace
 }
 
 func (j Job) Run() {
 	jobName, err := manager.NameFromJob(j)
 	if err != nil {
-		log.Printf()
+		log.Println(err)
 		return
 	}
 
