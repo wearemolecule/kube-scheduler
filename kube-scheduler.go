@@ -9,11 +9,12 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
+	honeybadger "github.com/honeybadger-io/honeybadger-go"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron"
-	"github.com/smeriwether/honeybadger-go"
 	kube "github.com/wearemolecule/kubeclient"
 	"golang.org/x/build/kubernetes/api"
 	"golang.org/x/net/context"
@@ -22,7 +23,7 @@ import (
 
 var configDir string
 var kubeClient *kube.Client
-var jobLock map[string]string
+var manager Manager
 
 func init() {
 	flag.StringVar(&configDir, "dir", ".", "Directory where config is located")
@@ -32,7 +33,6 @@ func main() {
 	configureHoneybadger()
 	defer honeybadger.Monitor()
 
-	jobLock = make(map[string]string)
 	flag.Parse()
 	err := godotenv.Load()
 	if err != nil {
@@ -43,7 +43,7 @@ func main() {
 	if err != nil {
 		nErr := fmt.Errorf("Failed to connect to kubernetes. Error: %v", err)
 		honeybadger.Notify(nErr, honeybadger.Fingerprint{fmt.Sprintf("%d", time.Now().Unix())})
-		panic(nErr)
+		log.Fatal(nErr)
 	}
 
 	b, err := ioutil.ReadFile(filePath("schedule.yml"))
@@ -59,6 +59,12 @@ func main() {
 		nErr := fmt.Errorf("Unable to unmarshal schedule yaml, error: %v", err)
 		honeybadger.Notify(nErr, honeybadger.Fingerprint{fmt.Sprintf("%d", time.Now().Unix())})
 		log.Fatal(nErr)
+	}
+
+	manager = Manager{
+		config,
+		make(map[string]string),
+		&sync.Mutex{},
 	}
 
 	log.Println(config)
@@ -78,6 +84,41 @@ func main() {
 
 type JobList map[string]Job
 
+type Manager struct {
+	jList JobList
+	jLock map[string]string
+	mutex *sync.Mutex
+}
+
+func (m *Manager) ReadFromJobLock(template string) (string, bool) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	v, ok := m.jLock[template]
+	return v, ok
+}
+
+func (m *Manager) WriteToJobLock(template, state string) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	m.jLock[template] = state
+}
+
+func (m *Manager) DeleteFromJobLock(template string) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	delete(m.jLock, template)
+}
+
+func (m *Manager) NameFromJob(j Job) (string, error) {
+	for k, v := range m.jList {
+		if v.Equal(j) {
+			return k, nil
+		}
+	}
+
+	return "", fmt.Errorf("Job is not in job list")
+}
+
 type Job struct {
 	Cron        string
 	Template    string
@@ -86,18 +127,28 @@ type Job struct {
 	Namespace   string
 }
 
+func (j Job) Equal(job Job) bool {
+	return j.Cron == job.Cron &&
+		j.Template == job.Template &&
+		j.Description == job.Description &&
+		j.Namespace == job.Namespace
+}
+
 func (j Job) Run() {
-	if _, ok := jobLock[j.Template]; ok {
-		nErr := fmt.Errorf("Unable to start new job (%s) because it is already running", j.Description)
-		honeybadger.Notify(nErr, honeybadger.Fingerprint{fmt.Sprintf("%d", time.Now().Unix())})
-		log.Println(nErr)
+	jobName, err := manager.NameFromJob(j)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if _, ok := manager.ReadFromJobLock(jobName); ok {
+		log.Printf("Unable to start new job (%s) because it is already running\n", j.Description)
 		return
 	}
 	log.Println("Running", j.Description)
 
-	//TODO not thread safe
-	jobLock[j.Template] = "started"
-	defer delete(jobLock, j.Template)
+	manager.WriteToJobLock(jobName, "started")
+	defer manager.DeleteFromJobLock(jobName)
 
 	if err := createTaskPod(j); err != nil {
 		nErr := fmt.Errorf("Failed to create task pod for job %s, error: %v", j.Description, err)
@@ -144,7 +195,7 @@ func createTaskPod(j Job) error {
 		podStatus := status.Pod.Status
 		if podStatus.Phase == "Failed" {
 			_ = kubeClient.DeletePod(ctx, newPod.Namespace, newPod.Name)
-			return errors.New(fmt.Sprintf("Task pod failed.\n%v", err))
+			return errors.New(fmt.Sprintf("Task pod %s in namespace %s failed.", newPod.Name, newPod.Namespace))
 		}
 		if podStatus.Phase == "Succeeded" {
 			if logs, err := kubeClient.PodLog(ctx, newPod.Namespace, newPod.Name); err != nil {
