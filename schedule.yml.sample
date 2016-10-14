@@ -1,6 +1,13 @@
-scheduled_job_sample:
-  cron: "0 */2 15-23 * * 1-5"
+1000_pi_calculator:
+  cron: "*/30 * * * * *"
   template: "sample-job.json"
-  args: ["args"]
-  namespace: your-namespace
-  description: "Run a job on a schedule"
+  args: []
+  namespace: default
+  description: "Computes π to 1000 places and print it out"
+
+2000_pi_calculator:
+  cron: "*/30 * * * * *"
+  template: "sample-job2.json"
+  args: []
+  namespace: default
+  description: "Computes π to 2000 places and print it out"

@@ -1,0 +1,33 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "generateName": "pi-",
+    "labels": {
+      "role": "pi-calculator"
+    }
+  },
+  "spec": {
+    "activeDeadlineSeconds": 100,
+    "template": {
+      "metadata": {
+        "generateName": "pi-"
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "pi",
+            "image": "perl",
+            "command": [
+              "perl",
+              "-Mbignum=bpi",
+              "-wle",
+              "print bpi(1000)"
+            ]
+          }
+        ],
+        "restartPolicy": "Never"
+      }
+    }
+  }
+}
