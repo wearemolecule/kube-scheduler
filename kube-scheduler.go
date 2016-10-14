@@ -51,7 +51,7 @@ func init() {
 func main() {
 	flag.Parse()
 	godotenv.Load()
-	glog.V(1).Info("Kube Scheduler")
+	glog.Info("Kube Scheduler")
 
 	var err error
 	kubeClient, err = createKubernetesClient()
@@ -270,5 +270,5 @@ func filePath(filename string) string {
 }
 
 func configureHoneybadger() {
-	honeybadger.Configure(honeybadger.Configuration{APIKey: os.Getenv("HONEYBADGER_API_KEY")})
+	honeybadger.Configure(honeybadger.Configuration{APIKey: os.Getenv("HONEYBADGER_API_KEY"), Env: os.Getenv("NAMESPACE")})
 }

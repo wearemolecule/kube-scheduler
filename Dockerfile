@@ -1,4 +1,4 @@
 FROM alpine
 RUN apk --update add ca-certificates
 COPY kube-scheduler /opt/
-ENTRYPOINT ["/opt/kube-scheduler", "-logtostderr=true"]
+ENTRYPOINT ["/opt/kube-scheduler"]
