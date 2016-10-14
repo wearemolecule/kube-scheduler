@@ -1,6 +1,13 @@
-pi_calculator:
+1000_pi_calculator:
   cron: "*/30 * * * * *"
   template: "sample-job.json"
+  args: []
+  namespace: default
+  description: "Computes π to 1000 places and print it out"
+
+2000_pi_calculator:
+  cron: "*/30 * * * * *"
+  template: "sample-job2.json"
   args: []
   namespace: default
   description: "Computes π to 2000 places and print it out"

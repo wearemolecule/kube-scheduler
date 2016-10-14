@@ -75,14 +75,16 @@ func main() {
 	cronManager := cron.New()
 	for name, job := range manager.jobList {
 		glog.Infof("Adding job %s (%s) with schedule %s", name, job.Description, job.Cron)
-		cronManager.AddFunc(job.Cron, func() {
-			glog.Infof("Running %s...", name)
-			if err := job.Run(); err != nil {
-				glog.Warningf("Unable to create & run job: %s", err)
-				honeybadger.Notify(fmt.Sprintf("Unable to schedule %s", name), honeybadger.Context{"error": err})
-			}
-			glog.V(1).Infof("Finished job %s", name)
-		})
+		go func(name string, job Job) {
+			cronManager.AddFunc(job.Cron, func() {
+				glog.Infof("Running %s...", name)
+				if err := job.Run(); err != nil {
+					glog.Warningf("Unable to create & run job: %s", err)
+					honeybadger.Notify(fmt.Sprintf("Unable to schedule %s", name), honeybadger.Context{"error": err})
+				}
+				glog.V(1).Infof("Finished job %s", name)
+			})
+		}(name, job)
 	}
 	cronManager.Start()
 	defer cronManager.Stop()

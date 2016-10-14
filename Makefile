@@ -6,7 +6,7 @@ DOCKER_TAG=latest
 IMAGE_TAG=$(IMAGE):$(DOCKER_TAG)
 
 run:
-	SCHEDULE_NAME=schedule.yml.sample go run kube-scheduler.go -logtostderr=true -v=0
+	SCHEDULE_NAME=schedule.yml.sample go run kube-scheduler.go -logtostderr=true -v=2
 
 build:
 	$(GO) build -a -installsuffix cgo -o $(BIN) .
