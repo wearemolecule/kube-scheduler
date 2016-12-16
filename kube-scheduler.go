@@ -73,7 +73,12 @@ func main() {
 	}
 
 	cronManager := cron.New()
+	// loop over the jobs and add to the cronManager
 	for name, job := range manager.jobList {
+		if job.Cron == "" {
+			glog.Infof("Ignoring job %s (%s) without schedule", name, job.Description)
+			continue // Skip adding empty schedules to the cronManager
+		}
 		glog.Infof("Adding job %s (%s) with schedule %s", name, job.Description, job.Cron)
 		go func(name string, job Job) {
 			cronManager.AddFunc(job.Cron, func() {
