@@ -1,5 +1,5 @@
-hash: cc71f02b354d956858a4bd3eec1672239d23234f4ce59e5658b1c9bfb7658573
-updated: 2016-10-14T12:22:26.344342688-05:00
+hash: 94a4872846c8f71b6714ba82ed28f133a80d62083467bced18948b56397a789c
+updated: 2016-12-15T18:23:59.501597211-06:00
 imports:
 - name: github.com/blang/semver
   version: 60ec3488bfea7cca02b021d106d9911120d25fe9
@@ -12,13 +12,13 @@ imports:
 - name: github.com/docker/distribution
   version: 04c8db562da407630075b2452daee09b894a070a
   subpackages:
-  - reference
   - digest
+  - reference
 - name: github.com/emicklei/go-restful
   version: 3d66f886316ac990eb502aaa89ea38546420b8b7
   subpackages:
-  - swagger
   - log
+  - swagger
 - name: github.com/ghodss/yaml
   version: aa0c862057666179de291b67d9f093d12b5a8473
 - name: github.com/gogo/protobuf
@@ -40,14 +40,16 @@ imports:
   version: 77ed1c8a01217656d2080ad51981f6e99adaa177
 - name: github.com/pborman/uuid
   version: 3d4f2ba23642d3cfd06bd4b54cf03d99d95c0f1b
+- name: github.com/pkg/errors
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/robfig/cron
   version: 9585fd555638e77bba25f25db5c44b41f264aeb7
 - name: github.com/shirou/gopsutil
   version: fc800d3fb423e37fe8e44338e380bc6b551dcf36
   subpackages:
+  - internal/common
   - load
   - mem
-  - internal/common
 - name: github.com/spf13/pflag
   version: bf8481a6aebc13a8aab52e699ffe2e79771f5a3f
 - name: github.com/ugorji/go
@@ -55,7 +57,7 @@ imports:
   subpackages:
   - codec
 - name: golang.org/x/net
-  version: 8b4af36cd21a1f85a7484b49feb7c79363106d8e
+  version: 4876518f9e71663000c348837735820161a42df7
   subpackages:
   - context
   - http2
@@ -70,13 +72,8 @@ imports:
   version: f8e519fcc08881bcfe82d8755046df62ea30fda0
   subpackages:
   - "1.4"
-  - 1.4/kubernetes
-  - 1.4/pkg/api
-  - 1.4/pkg/apis/batch/v1
-  - 1.4/pkg/fields
-  - 1.4/rest
-  - 1.4/tools/clientcmd
   - 1.4/discovery
+  - 1.4/kubernetes
   - 1.4/kubernetes/typed/apps/v1alpha1
   - 1.4/kubernetes/typed/authentication/v1beta1
   - 1.4/kubernetes/typed/authorization/v1beta1
@@ -88,98 +85,103 @@ imports:
   - 1.4/kubernetes/typed/policy/v1alpha1
   - 1.4/kubernetes/typed/rbac/v1alpha1
   - 1.4/kubernetes/typed/storage/v1beta1
+  - 1.4/pkg/api
+  - 1.4/pkg/api/endpoints
+  - 1.4/pkg/api/errors
   - 1.4/pkg/api/install
-  - 1.4/pkg/apimachinery/registered
-  - 1.4/pkg/apis/apps/install
-  - 1.4/pkg/apis/authentication/install
-  - 1.4/pkg/apis/authorization/install
-  - 1.4/pkg/apis/autoscaling/install
-  - 1.4/pkg/apis/batch/install
-  - 1.4/pkg/apis/certificates/install
-  - 1.4/pkg/apis/extensions/install
-  - 1.4/pkg/apis/policy/install
-  - 1.4/pkg/apis/rbac/install
-  - 1.4/pkg/apis/storage/install
-  - 1.4/pkg/util/flowcontrol
   - 1.4/pkg/api/meta
   - 1.4/pkg/api/meta/metatypes
+  - 1.4/pkg/api/pod
   - 1.4/pkg/api/resource
+  - 1.4/pkg/api/service
   - 1.4/pkg/api/unversioned
+  - 1.4/pkg/api/unversioned/validation
+  - 1.4/pkg/api/util
+  - 1.4/pkg/api/v1
+  - 1.4/pkg/api/validation
+  - 1.4/pkg/apimachinery
+  - 1.4/pkg/apimachinery/registered
+  - 1.4/pkg/apis/apps
+  - 1.4/pkg/apis/apps/install
+  - 1.4/pkg/apis/apps/v1alpha1
+  - 1.4/pkg/apis/authentication
+  - 1.4/pkg/apis/authentication/install
+  - 1.4/pkg/apis/authentication/v1beta1
+  - 1.4/pkg/apis/authorization
+  - 1.4/pkg/apis/authorization/install
+  - 1.4/pkg/apis/authorization/v1beta1
+  - 1.4/pkg/apis/autoscaling
+  - 1.4/pkg/apis/autoscaling/install
+  - 1.4/pkg/apis/autoscaling/v1
+  - 1.4/pkg/apis/batch
+  - 1.4/pkg/apis/batch/install
+  - 1.4/pkg/apis/batch/v1
+  - 1.4/pkg/apis/batch/v2alpha1
+  - 1.4/pkg/apis/certificates
+  - 1.4/pkg/apis/certificates/install
+  - 1.4/pkg/apis/certificates/v1alpha1
+  - 1.4/pkg/apis/extensions
+  - 1.4/pkg/apis/extensions/install
+  - 1.4/pkg/apis/extensions/v1beta1
+  - 1.4/pkg/apis/policy
+  - 1.4/pkg/apis/policy/install
+  - 1.4/pkg/apis/policy/v1alpha1
+  - 1.4/pkg/apis/rbac
+  - 1.4/pkg/apis/rbac/install
+  - 1.4/pkg/apis/rbac/v1alpha1
+  - 1.4/pkg/apis/storage
+  - 1.4/pkg/apis/storage/install
+  - 1.4/pkg/apis/storage/v1beta1
   - 1.4/pkg/auth/user
+  - 1.4/pkg/capabilities
   - 1.4/pkg/conversion
+  - 1.4/pkg/conversion/queryparams
+  - 1.4/pkg/fields
   - 1.4/pkg/labels
   - 1.4/pkg/runtime
   - 1.4/pkg/runtime/serializer
-  - 1.4/pkg/selection
-  - 1.4/pkg/types
-  - 1.4/pkg/util/intstr
-  - 1.4/pkg/util/labels
-  - 1.4/pkg/util/rand
-  - 1.4/pkg/util/sets
-  - 1.4/pkg/util/uuid
-  - 1.4/pkg/util/validation/field
-  - 1.4/pkg/api/v1
-  - 1.4/pkg/apis/batch
-  - 1.4/pkg/watch/versioned
-  - 1.4/pkg/api/errors
-  - 1.4/pkg/api/validation
-  - 1.4/pkg/runtime/serializer/streaming
-  - 1.4/pkg/util/crypto
-  - 1.4/pkg/util/net
-  - 1.4/pkg/version
-  - 1.4/pkg/watch
-  - 1.4/tools/clientcmd/api
-  - 1.4/tools/metrics
-  - 1.4/transport
-  - 1.4/pkg/util/errors
-  - 1.4/pkg/util/homedir
-  - 1.4/pkg/util/validation
-  - 1.4/tools/auth
-  - 1.4/tools/clientcmd/api/latest
-  - 1.4/pkg/apis/apps/v1alpha1
-  - 1.4/pkg/apis/authorization/v1beta1
-  - 1.4/pkg/apis/autoscaling/v1
-  - 1.4/pkg/apis/certificates/v1alpha1
-  - 1.4/pkg/apis/extensions/v1beta1
-  - 1.4/pkg/apis/policy/v1alpha1
-  - 1.4/pkg/apis/rbac/v1alpha1
-  - 1.4/pkg/apis/storage/v1beta1
-  - 1.4/pkg/apimachinery
-  - 1.4/pkg/apis/apps
-  - 1.4/pkg/apis/authentication
-  - 1.4/pkg/apis/authentication/v1beta1
-  - 1.4/pkg/apis/authorization
-  - 1.4/pkg/apis/autoscaling
-  - 1.4/pkg/apis/batch/v2alpha1
-  - 1.4/pkg/apis/certificates
-  - 1.4/pkg/apis/extensions
-  - 1.4/pkg/apis/policy
-  - 1.4/pkg/apis/rbac
-  - 1.4/pkg/apis/storage
-  - 1.4/pkg/util/clock
-  - 1.4/pkg/util/integer
-  - 1.4/pkg/third_party/forked/golang/reflect
-  - 1.4/pkg/conversion/queryparams
-  - 1.4/pkg/util/json
   - 1.4/pkg/runtime/serializer/json
   - 1.4/pkg/runtime/serializer/protobuf
   - 1.4/pkg/runtime/serializer/recognizer
+  - 1.4/pkg/runtime/serializer/streaming
   - 1.4/pkg/runtime/serializer/versioning
-  - 1.4/pkg/util
-  - 1.4/pkg/util/parsers
-  - 1.4/pkg/api/endpoints
-  - 1.4/pkg/api/pod
-  - 1.4/pkg/api/service
-  - 1.4/pkg/api/unversioned/validation
-  - 1.4/pkg/api/util
-  - 1.4/pkg/capabilities
   - 1.4/pkg/security/apparmor
+  - 1.4/pkg/selection
+  - 1.4/pkg/third_party/forked/golang/reflect
+  - 1.4/pkg/types
+  - 1.4/pkg/util
+  - 1.4/pkg/util/clock
   - 1.4/pkg/util/config
-  - 1.4/pkg/util/yaml
-  - 1.4/pkg/util/runtime
-  - 1.4/pkg/util/wait
-  - 1.4/tools/clientcmd/api/v1
+  - 1.4/pkg/util/crypto
+  - 1.4/pkg/util/errors
+  - 1.4/pkg/util/flowcontrol
   - 1.4/pkg/util/framer
   - 1.4/pkg/util/hash
+  - 1.4/pkg/util/homedir
+  - 1.4/pkg/util/integer
+  - 1.4/pkg/util/intstr
+  - 1.4/pkg/util/json
+  - 1.4/pkg/util/labels
+  - 1.4/pkg/util/net
   - 1.4/pkg/util/net/sets
+  - 1.4/pkg/util/parsers
+  - 1.4/pkg/util/rand
+  - 1.4/pkg/util/runtime
+  - 1.4/pkg/util/sets
+  - 1.4/pkg/util/uuid
+  - 1.4/pkg/util/validation
+  - 1.4/pkg/util/validation/field
+  - 1.4/pkg/util/wait
+  - 1.4/pkg/util/yaml
+  - 1.4/pkg/version
+  - 1.4/pkg/watch
+  - 1.4/pkg/watch/versioned
+  - 1.4/rest
+  - 1.4/tools/auth
+  - 1.4/tools/clientcmd
+  - 1.4/tools/clientcmd/api
+  - 1.4/tools/clientcmd/api/latest
+  - 1.4/tools/clientcmd/api/v1
+  - 1.4/tools/metrics
+  - 1.4/transport
 testImports: []
