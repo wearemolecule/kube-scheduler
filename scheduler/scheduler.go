@@ -80,11 +80,13 @@ func (c *client) JobList() jobList {
 }
 
 type Job struct {
-	Cron        string   `yaml:"cron"`
-	Template    string   `yaml:"template"`
-	Description string   `yaml:"description"`
-	Args        []string `yaml:"args`
-	Namespace   string   `yaml:"namespace"`
+	Cron        string `yaml:"cron"`
+	Template    string `yaml:"template"`
+	Description string `yaml:"description"`
+	//Allows overriding the image given in the job spec
+	Image     string   `yaml:"image"`
+	Args      []string `yaml:"args"`
+	Namespace string   `yaml:"namespace"`
 }
 
 type client struct {
