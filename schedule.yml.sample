@@ -1,6 +1,7 @@
 1000_pi_calculator:
   cron: "*/30 * * * * *"
   template: "sample-job.json"
+  image: "perl:5.22"
   args: []
   namespace: default
   description: "Computes π to 1000 places and print it out"

@@ -70,7 +70,11 @@ func (c *client) RunJob(name string, job scheduler.Job) error {
 
 	glog.V(2).Infof("For %s found args: %v", name, job.Args)
 	glog.V(2).Infof("For %s found namespace: %s", name, job.Namespace)
-	kubeJob.Spec.Template.Spec.Containers[0].Args = job.Args
+	firstContainer := &kubeJob.Spec.Template.Spec.Containers[0]
+	firstContainer.Args = job.Args
+	if job.Image != "" {
+		firstContainer.Image = job.Image
+	}
 	kubeJob.ObjectMeta.Namespace = job.Namespace
 
 	clusterJob, err := c.createJob(kubeJob, job.Namespace)
