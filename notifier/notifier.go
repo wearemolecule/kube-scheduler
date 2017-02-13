@@ -43,7 +43,7 @@ func (c *client) Notify(msg string, err error) error {
 	var nErr error
 	var attempts int
 	for attempts < 3 {
-		if nErr = c.notifyHoneybadger(msg, err); err == nil {
+		if nErr = c.notifyHoneybadger(msg, err); nErr == nil {
 			return nil
 		}
 
