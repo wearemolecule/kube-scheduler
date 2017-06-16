@@ -112,7 +112,12 @@ func (c *client) createJob(job v1.Job, namespace string) (*v1.Job, error) {
 		return jobsClient.Create(&job)
 	})
 
-	return thing.(*v1.Job), err
+	// Check if the conversion went ok (nil values would otherwise cause panic)
+	if j, ok := thing.(*v1.Job); ok {
+		return j, err
+	}
+
+	return nil, err
 }
 
 func (c *client) deleteJob(job *v1.Job, namespace string) error {
