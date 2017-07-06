@@ -32,7 +32,7 @@ func main() {
 
 	namespace := os.Getenv("SCHEDULER_NAMESPACE")
 
-	notifier := notifier.NewClient(namespace)
+	notifier := notifier.NewClient(namespace, githash)
 
 	kubernetesClient, err := kubernetes.NewClient(kubernetesConfigPath, scheduleConfigPath)
 	if err != nil {
@@ -78,7 +78,7 @@ func schedule(
 			defer glog.Info("Finished job ", nameCopy)
 
 			if err := run(nameCopy, jobCopy, kubeClient, scheduler); err != nil {
-				notifier.Notify(fmt.Sprintf("Unable to create/run job %s", nameCopy), err)
+				notifier.Notify("Run job failed", err)
 			}
 		})
 	}
@@ -96,7 +96,7 @@ func schedule(
 
 func run(name string, job scheduler.Job, kubeClient kubernetes.ClientInterface, scheduler scheduler.ClientInterface) error {
 	if scheduler.Running(name, job) {
-		glog.Warningf("Unable to start %s becuase it is already running", name)
+		glog.Warningf("Unable to start %s because it is already running", name)
 		return nil
 	}
 
@@ -104,7 +104,7 @@ func run(name string, job scheduler.Job, kubeClient kubernetes.ClientInterface, 
 	defer scheduler.FinishJob(name, job)
 
 	if err := kubeClient.RunJob(name, job); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("Unable to create job %s", name))
+		return errors.Wrap(err, fmt.Sprintf("Job %s failed", name))
 	}
 
 	return nil

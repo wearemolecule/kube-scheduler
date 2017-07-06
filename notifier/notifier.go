@@ -14,10 +14,11 @@ type ClientInterface interface {
 	Notify(string, error) error
 }
 
-func NewClient(namespace string) *client {
+func NewClient(namespace, release string) *client {
 	var usingSentry bool
 	if os.Getenv("SENTRY_DSN") != "" {
 		raven.SetEnvironment(namespace)
+		raven.SetRelease(release)
 		usingSentry = true
 	}
 

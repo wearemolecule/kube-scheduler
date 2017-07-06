@@ -92,12 +92,13 @@ func (c *client) RunJob(name string, job scheduler.Job) error {
 	for event := range events.ResultChan() {
 		job := event.Object.(*v1.Job)
 		if len(job.Status.Conditions) > 0 {
-			if job.Status.Conditions[0].Type == v1.JobComplete {
+			condition := job.Status.Conditions[0]
+			if condition.Type == v1.JobComplete {
 				return nil
 			}
 
-			if job.Status.Conditions[0].Type == v1.JobFailed {
-				return fmt.Errorf("Error creating job task")
+			if condition.Type == v1.JobFailed {
+				return fmt.Errorf(condition.Message)
 			}
 		}
 	}
