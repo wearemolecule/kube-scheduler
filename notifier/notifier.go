@@ -2,7 +2,6 @@
 package notifier
 
 import (
-	"os"
 	"time"
 
 	"github.com/getsentry/raven-go"
@@ -14,18 +13,14 @@ type ClientInterface interface {
 	Notify(string, error) error
 }
 
-func NewClient(namespace string) *client {
-	var usingSentry bool
-	if os.Getenv("SENTRY_DSN") != "" {
-		raven.SetEnvironment(namespace)
-		usingSentry = true
-	}
+func NewClient(namespace, release string) *client {
+	raven.SetEnvironment(namespace)
+	raven.SetRelease(release)
 
-	return &client{usingSentry}
+	return &client{}
 }
 
 type client struct {
-	usingSentry bool
 }
 
 // Notify will log to stdout and post error and message to Sentry.
@@ -50,10 +45,6 @@ func (c *client) Notify(msg string, err error) error {
 }
 
 func (c *client) notifySentry(msg string, err error) error {
-	if !c.usingSentry {
-		return nil
-	}
-
 	msgID := raven.CaptureErrorAndWait(err, map[string]string{"message": msg})
 	if msgID == "" {
 		return errors.New("Posting to Sentry failed")

@@ -9,7 +9,7 @@ build:
 	$(GO) build -a -installsuffix cgo -o $(BIN) $(LDFLAGS) .
 
 setup:
-	glide install -v 
+	dep ensure
 
 .PHONY: clean
 
