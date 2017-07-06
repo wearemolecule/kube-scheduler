@@ -26,7 +26,7 @@ Once your cluster is configured you need a job/task to run. Our workflow looks l
     * `CERTS_PATH` should be location of your kubernetes credentials.
     * `KUBERNETES_SERVICE_HOST` should be the host name of your kubernetes cluster.
     * `KUBERNETES_SERVICE_PORT` should be the port of your kubernetes cluster.
-    * `HONEYBADGER_API_KEY` should be the key to your honeybadger project (*OPTIONAL*).
+    * `SENTRY_DSN` should be the dsn to your Sentry project (*OPTIONAL*).
 1. Create a pod definition for your job/task (a sample is [here](https://github.com/wearemolecule/kube-scheduler/blob/master/nymex_prelims.json)).
 1. Create `schedule.yml` configuration file (a sample is [here](https://github.com/wearemolecule/kube-scheduler/blob/master/schedule.yml.sample)).
 1. Start the service.
@@ -42,7 +42,7 @@ Once your cluster is configured you need a job/task to run. Our workflow looks l
 * Duplicate job definitions names will only run the last definition, this is a quirk of yaml parsing
 * You can leave a cron as empty string `""` to disable an existing job. This does not stop any active configutations/jobs
 * The logs produced by the scheduler are any of its own logs and all logs from tasks/jobs.
-* We log (and create optional honeybadger messages) when a pod fails to start or finish in a "successful" state or when a job is scheduled to start while another instance of the same job is still active.
+* We log (and create optional Sentry messages) when a pod fails to start or finish in a "successful" state or when a job is scheduled to start while another instance of the same job is still active.
 
 ## Copyright and License
 

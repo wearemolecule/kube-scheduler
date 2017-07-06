@@ -4,8 +4,6 @@ import:
   version: a3f3340b5840cee44f372bddb5880fcbc419b46a
 - package: github.com/robfig/cron
   version: 9585fd555638e77bba25f25db5c44b41f264aeb7
-- package: github.com/honeybadger-io/honeybadger-go
-  version: v.0.2.0
 - package: k8s.io/client-go
   version: v1.4.0
   subpackages:
@@ -14,3 +12,4 @@ import:
   version: 23def4e6c14b4da8ac2ed8007337bc5eb5007998
 - package: github.com/pkg/errors
   version: ^0.8.0
+- package: github.com/getsentry/raven-go

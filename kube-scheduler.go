@@ -31,9 +31,8 @@ func main() {
 	birthCry()
 
 	namespace := os.Getenv("SCHEDULER_NAMESPACE")
-	honeybadgerApiKey := os.Getenv("HONEYBADGER_API_KEY")
 
-	notifier := notifier.NewClient(namespace, honeybadgerApiKey)
+	notifier := notifier.NewClient(namespace)
 
 	kubernetesClient, err := kubernetes.NewClient(kubernetesConfigPath, scheduleConfigPath)
 	if err != nil {
