@@ -1,11 +1,12 @@
-// The notifier package provides a way to communicate errors to external services.  The only supported service is Honeybader.
+// The notifier package provides a way to communicate errors to external services.  The only supported service is Sentry.
 package notifier
 
 import (
+	"os"
 	"time"
 
+	"github.com/getsentry/raven-go"
 	"github.com/golang/glog"
-	honeybadger "github.com/honeybadger-io/honeybadger-go"
 	"github.com/pkg/errors"
 )
 
@@ -13,37 +14,30 @@ type ClientInterface interface {
 	Notify(string, error) error
 }
 
-func NewClient(namespace, apiKey string) *client {
-	var usingHoneybadger bool
-	if apiKey != "" {
-		honeybadger.Configure(
-			honeybadger.Configuration{
-				Env:    namespace,
-				APIKey: apiKey,
-			},
-		)
-		usingHoneybadger = true
+func NewClient(namespace string) *client {
+	var usingSentry bool
+	if os.Getenv("SENTRY_DSN") != "" {
+		raven.SetEnvironment(namespace)
+		usingSentry = true
 	}
 
-	return &client{namespace, usingHoneybadger}
+	return &client{usingSentry}
 }
 
 type client struct {
-	namespace        string
-	usingHoneybadger bool
+	usingSentry bool
 }
 
-// Notify will log to stdout and post error and message to honeybadger.
+// Notify will log to stdout and post error and message to Sentry.
 //
-// We have experienced timeout issues when trying to post to honeybadger,
-// to help fix that we will retry attempts 3 times before logging and returning the error.
+// TODO: Evaluate if we still need retry logic for Sentry
 func (c *client) Notify(msg string, err error) error {
 	glog.Info(errors.Wrap(err, msg))
 
 	var nErr error
 	var attempts int
 	for attempts < 3 {
-		if nErr = c.notifyHoneybadger(msg, err); nErr == nil {
+		if nErr = c.notifySentry(msg, err); nErr == nil {
 			return nil
 		}
 
@@ -51,15 +45,19 @@ func (c *client) Notify(msg string, err error) error {
 		time.Sleep(1 * time.Second)
 	}
 
-	glog.Info(errors.Wrap(nErr, "Unable to POST to honeybadger"))
+	glog.Info(errors.Wrap(nErr, "Unable to POST to Sentry"))
 	return nErr
 }
 
-func (c *client) notifyHoneybadger(msg string, err error) error {
-	if !c.usingHoneybadger {
+func (c *client) notifySentry(msg string, err error) error {
+	if !c.usingSentry {
 		return nil
 	}
 
-	_, nErr := honeybadger.Notify(msg, honeybadger.Context{"error": err}, honeybadger.Fingerprint{time.Now().String()})
-	return nErr
+	msgID := raven.CaptureErrorAndWait(err, map[string]string{"message": msg})
+	if msgID == "" {
+		return errors.New("Posting to Sentry failed")
+	}
+
+	return nil
 }
